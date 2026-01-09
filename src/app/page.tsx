@@ -1,26 +1,20 @@
-import { Suspense } from "react";
-import { ErrorBoundary } from "react-error-boundary";
+import { caller } from "@/trpc/server";
+import { requireAuth } from "@/utils/auth";
 
-import { HydrateClient, prefetch, trpc } from "@/trpc/server";
-
-import { ClientGreeting } from "./client-greeting";
+import { LogoutButton } from "./logout-button";
 
 const HomePage = async () => {
 
-  prefetch(
-    trpc.hello.queryOptions({
-      text: "guangxin"
-    }),
-  );
+  await requireAuth();
+
+  const data = await caller.getUsers();
 
   return (
-    <HydrateClient>
-      <ErrorBoundary fallback={<div>Something went wrong</div>}>
-        <Suspense fallback={<div>Loading...</div>}>
-          <ClientGreeting />
-        </Suspense>
-      </ErrorBoundary>
-    </HydrateClient>
+    <div className="flex flex-col justify-center items-center gap-y-6 min-w-screen min-h-screen">
+      protected server component
+      <p>{JSON.stringify(data, null, 2)}</p>
+      <LogoutButton />
+    </div>
   );
 }
 

@@ -1,19 +1,11 @@
-import { z } from "zod";
+import prisma from "@/lib/prisma";
 
-import { baseProcedure, createTRPCRouter } from "../init";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const appRouter = createTRPCRouter({
-  hello: baseProcedure
-    .input(
-      z.object({
-        text: z.string(),
-      }),
-    )
-    .query((opts) => {
-      return {
-        greeting: `hello ${opts.input.text}`,
-      };
-    }),
+  getUsers: protectedProcedure.query(() => {
+    return prisma.user.findMany();
+  }),
 });
 
 // export type definition of API
