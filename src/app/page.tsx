@@ -1,16 +1,26 @@
-import prisma from "@/lib/prisma";
-import { Button } from "@/components/ui/button";
+import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+
+import { HydrateClient, prefetch, trpc } from "@/trpc/server";
+
+import { ClientGreeting } from "./client-greeting";
 
 const HomePage = async () => {
 
-  const users = await prisma.user.findMany();
-  console.log("users length: ", users.length);
+  prefetch(
+    trpc.hello.queryOptions({
+      text: "guangxin"
+    }),
+  );
 
   return (
-    <div>
-      HomePage
-      <Button>Hello</Button>
-    </div>
+    <HydrateClient>
+      <ErrorBoundary fallback={<div>Something went wrong</div>}>
+        <Suspense fallback={<div>Loading...</div>}>
+          <ClientGreeting />
+        </Suspense>
+      </ErrorBoundary>
+    </HydrateClient>
   );
 }
 
