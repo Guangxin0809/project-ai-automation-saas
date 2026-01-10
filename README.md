@@ -8,3 +8,4 @@
 - tRPC        -> End-to-End type-safe APIs
 - Better Auth -> Authentication
 - Inngest     -> Background jobs
+- Sentry      -> Error tracking

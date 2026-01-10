@@ -1,4 +1,5 @@
 import { generateText } from 'ai';
+import * as Sentry from "@sentry/nextjs";
 
 import { inngest } from "./client";
 
@@ -17,6 +18,10 @@ export const executeAi = inngest.createFunction(
   async ({ event, step }) => {
     await step.sleep("pretend", 5_000);
 
+    Sentry.logger.info("User triggered test log", { log_source: "sentry_test" });
+    console.warn("This is warn i want to track");
+    console.error("This is error i want to track");
+
     const { steps } = await step.ai.wrap(
       "gemini-generate-text",
       generateText,
@@ -24,6 +29,11 @@ export const executeAi = inngest.createFunction(
         model: "google/gemini-2.5-flash",
         system: "You are a helpful assistant.",
         prompt: "What is 2 + 2?",
+        experimental_telemetry: {
+          isEnabled: true,
+          recordInputs: true,
+          recordOutputs: true,
+        }
       },
     );
 
