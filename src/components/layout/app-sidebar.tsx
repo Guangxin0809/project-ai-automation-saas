@@ -1,15 +1,21 @@
 "use client";
 
-import Link from "next/link"
-import Image from "next/image"
-import { usePathname } from "next/navigation"
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
 import {
+  CreditCardIcon,
   FolderOpenIcon,
   HistoryIcon,
   KeyIcon,
   LogOutIcon,
-} from "lucide-react"
+  StarIcon,
+} from "lucide-react";
 
+import { authClient } from "@/lib/auth-client";
+import {
+  useHasActiveSubscription
+} from "@/features/subscriptions/hooks/use-subscription";
 import {
   Sidebar,
   SidebarContent,
@@ -20,7 +26,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 const menuItems = [
   {
@@ -47,9 +53,19 @@ const menuItems = [
 
 export const AppSidebar = () => {
 
+  const router = useRouter();
   const pathname = usePathname();
+  const { hasActiveSubscription, isLoading } = useHasActiveSubscription();
 
-  const handleSignout = () => {}
+  const handleSignout = () => {
+    authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.push('/login')
+        }
+      }
+    });
+  }
 
   return (
     <Sidebar collapsible="icon">
@@ -102,8 +118,29 @@ export const AppSidebar = () => {
 
       <SidebarFooter>
         <SidebarMenu>
-          {/* TODO: upgrade to pro */}
-          {/* TODO: billing portal */}
+          {!hasActiveSubscription && !isLoading && (
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                tooltip="Upgrade to Pro"
+                className="gap-x-4 h-10 px-4"
+                onClick={() => authClient.checkout({ slug: "Nodebase-Pro"})}
+              >
+                <StarIcon size={16} />
+                <span>Upgrade to Pro</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
+
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip="Billing Portal"
+              className="gap-x-4 h-10 px-4"
+              onClick={() => authClient.customer.portal()}
+            >
+              <CreditCardIcon size={16} />
+              <span>Billing Portal</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
 
           <SidebarMenuItem>
             <SidebarMenuButton
