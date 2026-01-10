@@ -1,7 +1,7 @@
 "use client";
 
 import { toast } from "sonner";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { useTRPC } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
@@ -12,18 +12,18 @@ import { LogoutButton } from "./logout-button";
 const HomePage = () => {
 
   const trpc = useTRPC();
-  const queryClient = useQueryClient();
   const { data } = useQuery(trpc.getWorkflows.queryOptions());
 
   const crateWorkflowMutation = useMutation(trpc.crateWorkflow.mutationOptions({
     onSuccess: () => {
       toast.success("Job queued");
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries(
-        trpc.getWorkflows.queryOptions(),
-      );
-    },
+    }
+  }));
+
+  const testAiMutation = useMutation(trpc.testAi.mutationOptions({
+    onSuccess: () => {
+      toast.success("Job queued");
+    }
   }));
 
   return (
@@ -36,6 +36,13 @@ const HomePage = () => {
         onClick={() => crateWorkflowMutation.mutate()}
       >
         Create workflow
+      </Button>
+
+      <Button
+        disabled={testAiMutation.isPending}
+        onClick={() => testAiMutation.mutate()}
+      >
+        Test AI
       </Button>
 
       <LogoutButton />
