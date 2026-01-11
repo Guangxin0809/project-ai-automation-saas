@@ -84,7 +84,6 @@ export const WorkflowsSearch = () => {
 
   const [params, setParams] = useWorkflowsParams();
   const { searchValue, onSearchChange } = useEntitySearch({ params, setParams });
-  console.log("WorkflowsSearch searchValue", searchValue);
 
   return (
     <EntitySearch

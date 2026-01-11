@@ -1,5 +1,6 @@
 import { Toaster } from "sonner";
 import type { Metadata } from "next";
+import { Provider as JotaiProvider } from "jotai";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Geist, Geist_Mono } from "next/font/google";
 
@@ -34,8 +35,10 @@ export default function RootLayout({
       >
         <TRPCReactProvider>
           <NuqsAdapter>
-            {children}
-            <Toaster />
+            <JotaiProvider>
+              {children}
+              <Toaster />
+            </JotaiProvider>
           </NuqsAdapter>
         </TRPCReactProvider>
       </body>

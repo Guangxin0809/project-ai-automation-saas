@@ -10,3 +10,4 @@
 - Inngest     -> Background jobs
 - Sentry      -> Error tracking
 - nuqs        -> Type-safe search params state manager
+- Jotai       -> Global state management

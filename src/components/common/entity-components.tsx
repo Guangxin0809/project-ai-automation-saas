@@ -161,7 +161,7 @@ export const EntityPagination = ({
         variant="outline"
         size="sm"
         disabled={(page === totalPages) || (totalPages === 0) || disabled}
-        onClick={() => onPageChange(Math.max(1, page - 1))}
+        onClick={() => onPageChange(Math.min(totalPages, page + 1))}
       >
         Next
       </Button>
@@ -276,7 +276,7 @@ export const EntityItem = ({
                     align="end"
                     onClick={e => e.stopPropagation()}
                   >
-                    <DropdownMenuItem onClick={handleRemove}>
+                    <DropdownMenuItem disabled={isRemoving} onClick={handleRemove}>
                       <TrashIcon />
                       Delete
                     </DropdownMenuItem>

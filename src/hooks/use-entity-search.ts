@@ -17,7 +17,6 @@ export const useEntitySearch = <T extends { search: string, page: number }>({
   const [localSearch, setLocalSearch] = useState(params.search);
 
   useEffect(() => {
-    console.log("useEntitySearch params.search", params.search);
     setLocalSearch(params.search);
   }, [params.search]);
 
