@@ -1,42 +1,61 @@
-import { generateText } from 'ai';
-import * as Sentry from "@sentry/nextjs";
+import { NonRetriableError } from "inngest";
+
+import prisma from "@/lib/prisma";
+import { NodeType } from "@/generated/prisma/enums";
+import { getExecutor } from "@/features/executions/lib/executor-registry";
 
 import { inngest } from "./client";
+import { topologicalSort } from "./utils";
+import { httpRequestChannel } from "./channels/http-request";
 
-export const helloWorld = inngest.createFunction(
-  { id: "hello-world" },
-  { event: "test/hello.world" },
-  async ({ event, step }) => {
-    await step.sleep("wait-a-moment", "5s");
-    return { message: `Hello ${event.data.email}!` };
+export const executeWorkflow = inngest.createFunction(
+  {
+    id: "execute-workflow",
+    retries: 0, // TODO: remove in production
   },
-);
+  {
+    event: "workflows/execute-workflow",
+    channels: [
+      httpRequestChannel(),
+    ],
+  },
+  async ({ event, step, publish }) => {
+    const workflowId = event.data.workflowId;
 
-export const executeAi = inngest.createFunction(
-  { id: "execute-ai" },
-  { event: "test/execute.ai" },
-  async ({ event, step }) => {
-    await step.sleep("pretend", 5_000);
+    if (!workflowId) {
+      throw new NonRetriableError("Workflow ID is missing");
+    }
 
-    Sentry.logger.info("User triggered test log", { log_source: "sentry_test" });
-    console.warn("This is warn i want to track");
-    console.error("This is error i want to track");
+    const sortedNodes = await step.run("prepare-workflow", async () => {
+      const workflow = await prisma.workflow.findUniqueOrThrow({
+        where: { id: workflowId },
+        include: {
+          nodes: true,
+          connections: true,
+        },
+      });
 
-    const { steps } = await step.ai.wrap(
-      "gemini-generate-text",
-      generateText,
-      {
-        model: "google/gemini-2.5-flash",
-        system: "You are a helpful assistant.",
-        prompt: "What is 2 + 2?",
-        experimental_telemetry: {
-          isEnabled: true,
-          recordInputs: true,
-          recordOutputs: true,
-        }
-      },
-    );
+      return topologicalSort(workflow.nodes, workflow.connections);
+    });
 
-    return steps;
+    // Initialize the context with any initial data from the trigger
+    let context = event.data.initialData || {};
+
+    // Execute each node
+    for (const node of sortedNodes) {
+      const executor = getExecutor(node.type as NodeType);
+      context = await executor({
+        data: node.data as Record<string, unknown>,
+        nodeId: node.id,
+        context,
+        step,
+        publish,
+      });
+    }
+
+    return {
+      workflowId,
+      result: context,
+    }
   },
 );

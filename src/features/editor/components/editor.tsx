@@ -3,7 +3,6 @@
 import { useSetAtom } from "jotai";
 import { useCallback, useMemo, useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { NodeType } from "@/generated/prisma/enums";
 import { nodeComponents } from "@/config/node-components";
 import { useSuspenseWorkflow } from "@/features/workflows/hooks/use-workflows";
@@ -29,6 +28,7 @@ import {
 
 import { editorAtom } from "../store/atoms";
 import { AddNodeButton } from "./add-node-button";
+import { ExecuteWorkflowButton } from "./execute-workflow-button";
 
 import "@xyflow/react/dist/style.css";
 
@@ -86,9 +86,7 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
 
         {hasManualTrigger && (
           <Panel position="bottom-center">
-            <Button>
-              Execute
-            </Button>
+            <ExecuteWorkflowButton workflowId={workflowId} />
           </Panel>
         )}
       </ReactFlow>

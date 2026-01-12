@@ -11,3 +11,4 @@
 - Sentry      -> Error tracking
 - nuqs        -> Type-safe search params state manager
 - Jotai       -> Global state management
+- React Flow  -> Flow map

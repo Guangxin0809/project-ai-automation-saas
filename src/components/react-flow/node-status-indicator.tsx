@@ -23,7 +23,7 @@ export const SpinnerLoadingIndicator = ({
     <div className="relative">
       <StatusBorder className="border-blue-700/40">{children}</StatusBorder>
 
-      <div className="bg-background/50 absolute inset-0 z-50 rounded-[9px] backdrop-blur-xs" />
+      <div className="bg-background/50 absolute inset-0 z-50 rounded-[7px] backdrop-blur-sm" />
       <div className="absolute inset-0 z-50">
         <span className="absolute top-[calc(50%-1.25rem)] left-[calc(50%-1.25rem)] inline-block h-10 w-10 animate-ping rounded-full bg-blue-700/20" />
 
@@ -80,7 +80,7 @@ const StatusBorder = ({
     <>
       <div
         className={cn(
-          "absolute -top-px -left-px h-[calc(100%+2px)] w-[calc(100%+2px)] rounded-[9px] border-2",
+          "absolute -top-px -left-px h-[calc(100%+2px)] w-[calc(100%+2px)] rounded-md border-2",
           className,
         )}
       />
