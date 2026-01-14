@@ -5,9 +5,9 @@ type StatusTopicType = {
   status: "loading" | "success" | "error";
 }
 
-export const MANUAL_TRIGGER_CHANEL_NAME = "manual-trigger-execution";
+export const GOOGLE_FORM_TRIGGER_CHANEL_NAME = "google-form-execution";
 
-export const manualTriggerChannel = channel(MANUAL_TRIGGER_CHANEL_NAME)
+export const googleFormTriggerChannel = channel(GOOGLE_FORM_TRIGGER_CHANEL_NAME)
   .addTopic(
     topic("status").type<StatusTopicType>(),
   );

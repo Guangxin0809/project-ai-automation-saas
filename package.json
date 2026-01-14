@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "inngest:dev": "pnpm dlx inngest-cli@latest dev"
+    "inngest:dev": "pnpm dlx inngest-cli@latest dev",
+    "ngrok:dev": "dotenv -e .env -- sh -c 'ngrok http --url=$NGROK_URL 3000'"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.6",
@@ -68,6 +69,7 @@
     "@types/react-dom": "^19",
     "@types/toposort": "^2.0.7",
     "babel-plugin-react-compiler": "1.0.0",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
     "prisma": "^7.2.0",
