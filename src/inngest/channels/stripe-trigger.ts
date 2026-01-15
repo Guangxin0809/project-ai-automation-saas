@@ -5,9 +5,9 @@ type StatusTopicType = {
   status: "loading" | "success" | "error";
 }
 
-export const GOOGLE_FORM_TRIGGER_CHANEL_NAME = "google-form-trigger-execution";
+export const STRIPE_TRIGGER_CHANEL_NAME = "stripe-trigger-execution";
 
-export const googleFormTriggerChannel = channel(GOOGLE_FORM_TRIGGER_CHANEL_NAME)
+export const stripeTriggerChannel = channel(STRIPE_TRIGGER_CHANEL_NAME)
   .addTopic(
     topic("status").type<StatusTopicType>(),
   );

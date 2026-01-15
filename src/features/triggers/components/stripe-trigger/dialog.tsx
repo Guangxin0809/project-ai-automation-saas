@@ -16,14 +16,12 @@ import {
   DialogTitle
 } from "@/components/ui/dialog";
 
-import { generateGoogleFormScript } from "./utils";
-
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export const GoogleFormTriggerDialog = ({ open, onOpenChange }: Props) => {
+export const StripeTriggerDialog = ({ open, onOpenChange }: Props) => {
 
   const params = useParams();
   const workflowId = params.workflowId as string;
@@ -31,10 +29,9 @@ export const GoogleFormTriggerDialog = ({ open, onOpenChange }: Props) => {
   // Construct the webhook URL
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const webhookUrl = 
-    `${baseUrl}/api/webhooks/google-form?workflowId=${workflowId}`;
+    `${baseUrl}/api/webhooks/stripe?workflowId=${workflowId}`;
 
   const [webhookUrlCopied, setWebhookUrlCopied] = useState(false);
-  const [googleFormScriptCopied, setGoogleFormScriptCopied] = useState(false);
 
   useEffect(() => {
     if (!webhookUrlCopied) return;
@@ -58,27 +55,13 @@ export const GoogleFormTriggerDialog = ({ open, onOpenChange }: Props) => {
     }
   }
 
-  const handleCopyGoogleAppScript = async () => {
-    try {
-      if (googleFormScriptCopied) return;
-      
-      const script = await generateGoogleFormScript(webhookUrl);
-      await navigator.clipboard.writeText(script);
-      setGoogleFormScriptCopied(true);
-      toast.success("Script copied to clipboard");
-    } catch (error) {
-      console.error("Failed to copy script: ", error);
-      toast.error("Failed to copy script");
-    }
-  }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Google Form Trigger Configuration</DialogTitle>
+          <DialogTitle>Stripe Trigger Configuration</DialogTitle>
           <DialogDescription>
-            Use this webhook URL in your Google Form&apos;s Apps Script to trigger this workflow when a form is submitted.
+            Configure this webhook URL in your Stripe Dashboard to trigger this workflow on payment events.
           </DialogDescription>
         </DialogHeader>
         
@@ -111,33 +94,14 @@ export const GoogleFormTriggerDialog = ({ open, onOpenChange }: Props) => {
           <div className="space-y-2 p-4 rounded-lg bg-muted">
             <h4 className="font-medium text-sm">Setup instructions:</h4>
             <ol className="space-y-1 list-decimal list-inside text-sm text-muted-foreground">
-              <li>Open your Google Form</li>
-              <li>Click the three dots menu &rarr; Apps Script &raar; editor</li>
-              <li>Copy and paste the script below</li>
-              <li>Replace WEBHOOK_URL with your webhook URL above</li>
-              <li>Save and click &ldquo;Triggers&rdquo; &rarr; Add trigger</li>
-              <li>Choose: From form &rarr; On form submit &rarr; Save</li>
+              <li>Open your Stripe Dashboard</li>
+              <li>Go to Developers &rarr; Webhooks</li>
+              <li>Click &apos;Add endpoint&apos;</li>
+              <li>Paste the webhook URL above</li>
+              <li>Select events to listen for (e.g., payment_intent.succeeded)</li>
+              <li>Save and copy the signing secret</li>
             </ol>
           </div>
-        </div>
-
-        <div className="space-y-3 p-4 rounded-lg bg-muted">
-          <h4 className="font-medium text-sm">Google Apps Script:</h4>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleCopyGoogleAppScript}
-          >
-            {
-              googleFormScriptCopied
-                ? <CopyCheckIcon className="size-4 mr-2 text-green-500" />
-                : <CopyIcon className="size-4 mr-2" />
-            }
-            Copy Google Apps Script
-          </Button>
-          <p className="text-xs text-muted-foreground">
-            This script includes your webhook URL and handles form submissions.
-          </p>
         </div>
 
         <div className="space-y-3 p-4 rounded-lg bg-muted">
@@ -145,21 +109,33 @@ export const GoogleFormTriggerDialog = ({ open, onOpenChange }: Props) => {
           <ul className="space-y-1 text-sm text-muted-foreground">
             <li>
               <code className="px-1 py-0.5 rounded bg-background">
-                {"{{googleForm.respondentEmail}}"}
+                {"{{stripe.amount}}"}
               </code>
-              - Respondent&apos;s email
+              - Payment amount
             </li>
             <li>
               <code className="px-1 py-0.5 rounded bg-background">
-                {"{{googleForm.responses['Question Name']}}"}
+                {"{{stripe.currency}}"}
               </code>
-              - Specific answer
+              - Currency code
             </li>
             <li>
               <code className="px-1 py-0.5 rounded bg-background">
-                {"{{json googleForm.responses}}"}
+                {"{{stripe.customerId}}"}
               </code>
-              - All responses as JSON
+              - Customer ID
+            </li>
+            <li>
+              <code className="px-1 py-0.5 rounded bg-background">
+                {"{{json stripe}}"}
+              </code>
+              - Full event data as JSON
+            </li>
+            <li>
+              <code className="px-1 py-0.5 rounded bg-background">
+                {"{{stripe.eventType}}"}
+              </code>
+              - Event type (e.g., payment_intent.succeeded)
             </li>
           </ul>
         </div>

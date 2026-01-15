@@ -13,9 +13,9 @@ Handlebars.registerHelper("json", (context) => {
 });
 
 type HttpRequestData = {
-  variableName: string;
-  endpoint: string;
-  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  variableName?: string;
+  endpoint?: string;
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: string;
 };
 
@@ -34,18 +34,18 @@ export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
     })
   );
 
-  if (!data.endpoint) {
-    throw new NonRetriableError("HTTP Request node: No endpoint configured");
-  }
-  if (!data.variableName) {
-    throw new NonRetriableError("Variable name not configured");
-  }
-  if (!data.method) {
-    throw new NonRetriableError("Method not configured");
-  }
-
   try {
     const result = await step.run("http-request", async () => {
+      if (!data.endpoint) {
+        throw new NonRetriableError("HTTP Request node: No endpoint configured");
+      }
+      if (!data.variableName) {
+        throw new NonRetriableError("Variable name not configured");
+      }
+      if (!data.method) {
+        throw new NonRetriableError("Method not configured");
+      }
+
       const endpoint = Handlebars.compile(data.endpoint)(context);
       const method = data.method;
       const options: KyOptions = { method };

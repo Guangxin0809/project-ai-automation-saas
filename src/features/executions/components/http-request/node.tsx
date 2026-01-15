@@ -37,7 +37,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
     ? `${nodeData.method || 'GET'}: ${nodeData.endpoint}`
     : "Not configured";
 
-  const handleSettings = () => setDialogOpen(true);
+  const handleOpenSettings = () => setDialogOpen(true);
 
   const handleSubmit = (values: HttpRequestFormValues) => {
     setNodes(nodes => nodes.map(node => {
@@ -71,8 +71,8 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
         name="HTTP Request"
         status={nodeStatus}
         description={description}
-        onSettings={handleSettings}
-        onDoubleClick={() => {}}
+        onSettings={handleOpenSettings}
+        onDoubleClick={handleOpenSettings}
       />
     </>
   );
