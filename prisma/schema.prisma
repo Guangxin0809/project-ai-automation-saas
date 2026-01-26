@@ -86,6 +86,9 @@ enum NodeType {
   HTPP_REQUEST
   GOOGLE_FORM_TRIGGER
   STRIPE_TRIGGER
+  OPENAI
+  GEMINI
+  ANTHROPIC
 }
 
 model Node {
