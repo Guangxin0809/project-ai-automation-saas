@@ -100,8 +100,10 @@ export const EntityHeader = ({
 
     {newButtonHref && !onNew && (
       <Button size="sm" asChild>
-        <PlusIcon size={16} />
-        {newButtonLabel}
+        <Link href={newButtonHref}>
+          <PlusIcon size={16} />
+          {newButtonLabel}
+        </Link>
       </Button>
     )}
   </div>

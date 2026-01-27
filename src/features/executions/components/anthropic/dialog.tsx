@@ -1,6 +1,7 @@
 "use client";
 
 import z from "zod";
+import Image from "next/image";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,6 +9,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Credential } from "@/generated/prisma/client";
+import { CredentialType } from "@/generated/prisma/enums";
+import { useCredentialsByType } from "@/features/credentials/hooks/use-credentials";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +29,13 @@ import {
   FormLabel,
   FormMessage
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const formSchema = z.object({
   variableName: z
@@ -33,6 +44,7 @@ const formSchema = z.object({
     .regex(/^[A-Za-z_][A-Za-z0-9_]*$/, {
       message: "Variable name must start with a letter or underscore and only contains letters, numbers and underscores."
     }),
+  credentialId: z.string().min(1, "Credential is required"),
   systemPrompt: z.string().optional(),
   userPrompt: z.string().min(1, "User prompt is required"),
 });
@@ -53,12 +65,18 @@ export const AnthropicDialog = ({
   defaultValues = {},
 }: Props) => {
 
+  const {
+    data: credentials,
+    isLoading: isLoadingCredentials,
+  } = useCredentialsByType(CredentialType.ANTHROPIC);
+
   const form = useForm<AnthropicFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      variableName: defaultValues.variableName,
-      systemPrompt: defaultValues.systemPrompt,
-      userPrompt: defaultValues.userPrompt,
+      variableName: defaultValues.variableName || "",
+      credentialId: defaultValues.credentialId || "",
+      systemPrompt: defaultValues.systemPrompt || "",
+      userPrompt: defaultValues.userPrompt || "",
     },
   });
 
@@ -66,9 +84,10 @@ export const AnthropicDialog = ({
     if (!open) return;
 
     form.reset({
-      variableName: defaultValues.variableName,
-      systemPrompt: defaultValues.systemPrompt,
-      userPrompt: defaultValues.userPrompt,
+      variableName: defaultValues.variableName || "",
+      credentialId: defaultValues.credentialId || "",
+      systemPrompt: defaultValues.systemPrompt || "",
+      userPrompt: defaultValues.userPrompt || "",
     });
   }, [open, form, defaultValues]);
 
@@ -109,6 +128,48 @@ export const AnthropicDialog = ({
                     Use this name to reference the result in other nodes:{" "}
                     {`{{${watchVariableName}.aiResponse}}`}
                   </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              name="credentialId"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gemini Credential</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    disabled={isLoadingCredentials || !credentials?.length}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a credential" />
+                      </SelectTrigger>
+                    </FormControl>
+
+                    <SelectContent>
+                      {credentials?.map((credential: Credential) => (
+                        <SelectItem
+                          key={credential.id}
+                          value={credential.id}
+                        >
+                          <div className="flex items-cneter gap-x-2">
+                            <Image
+                              src="/anthropic.svg"
+                              alt="Anthropic"
+                              width={16}
+                              height={16}
+                            />
+
+                            {credential.name}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

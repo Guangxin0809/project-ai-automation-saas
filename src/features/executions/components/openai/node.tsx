@@ -12,6 +12,7 @@ import { BaseExecutionNode } from "../base-execution-node";
 
 type OpenAiNodeData = {
   variableName?: string;
+  credentialId?: string;
   systemPrompt?: string;
   userPrompt?: string;
 }

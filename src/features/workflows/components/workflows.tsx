@@ -6,6 +6,7 @@ import { formatDistanceToNow } from "date-fns";
 
 import { Workflow } from "@/generated/prisma/client";
 import { useEntitySearch } from "@/hooks/use-entity-search";
+import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
 import {
   EmptyView,
   EntityContainer,
@@ -24,7 +25,6 @@ import {
   useRemvoeWorkflow,
   useSuspenseWorkflows
 } from "../hooks/use-workflows";
-import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
 
 export const WorkflowsList = () => {
 
