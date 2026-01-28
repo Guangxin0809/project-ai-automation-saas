@@ -52,6 +52,38 @@ export const RegisterForm = () => {
 
   const isSubmitting = form.formState.isSubmitting;
 
+  const signInWithGithub = async () => {
+    await authClient.signIn.social(
+      {
+        provider: "github",
+      },
+      {
+        onSuccess: () => {
+          router.push("/");
+        },
+        onError: (ctx: any) => {
+          toast.error(ctx.error.message);
+        }
+      },
+    );
+  }
+
+  const signInWithGoogle = async () => {
+    await authClient.signIn.social(
+      {
+        provider: "google",
+      },
+      {
+        onSuccess: () => {
+          router.push("/");
+        },
+        onError: (ctx: any) => {
+          toast.error(ctx.error.message);
+        }
+      },
+    );
+  }
+
   const handleSignup = async (values: RegisterFormValues) => {
     if (values.password !== values.confirmPassword) {
       form.setError("confirmPassword", { message: "Two passwords don't match" });
@@ -94,6 +126,7 @@ export const RegisterForm = () => {
                     type="button"
                     className="w-full"
                     disabled={isSubmitting}
+                    onClick={signInWithGithub}
                   >
                     <Image
                       src="/github.svg"
@@ -109,6 +142,7 @@ export const RegisterForm = () => {
                     type="button"
                     className="w-full"
                     disabled={isSubmitting}
+                    onClick={signInWithGoogle}
                   >
                     <Image
                       src="/google.svg"

@@ -50,7 +50,40 @@ export const LoginForm = () => {
 
   const isSubmitting = form.formState.isSubmitting;
 
-  const handleLogin = async (values: LoginFormValues) => {
+  const signInWithGithub = async () => {
+    await authClient.signIn.social(
+      {
+        provider: "github",
+      },
+      {
+        onSuccess: () => {
+          router.push("/");
+        },
+        onError: (ctx: any) => {
+          toast.error(ctx.error.message);
+        }
+      },
+    );
+  }
+
+  // TODO: google oauth project: https://www.better-auth.com/docs/authentication/google
+  const signInWithGoogle = async () => {
+    await authClient.signIn.social(
+      {
+        provider: "google",
+      },
+      {
+        onSuccess: () => {
+          router.push("/");
+        },
+        onError: (ctx: any) => {
+          toast.error(ctx.error.message);
+        }
+      },
+    );
+  }
+
+  const signInWithEmail = async (values: LoginFormValues) => {
     await authClient.signIn.email(
       {
         email: values.email,
@@ -78,7 +111,7 @@ export const LoginForm = () => {
 
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleLogin)}>
+            <form onSubmit={form.handleSubmit(signInWithEmail)}>
               <div className="grid gap-6">
                 <div className="flex flex-col gap-y-4">
                   <Button
@@ -86,6 +119,7 @@ export const LoginForm = () => {
                     type="button"
                     className="w-full"
                     disabled={isSubmitting}
+                    onClick={signInWithGithub}
                   >
                     <Image
                       src="/github.svg"
@@ -101,6 +135,7 @@ export const LoginForm = () => {
                     type="button"
                     className="w-full"
                     disabled={isSubmitting}
+                    onClick={signInWithGoogle}
                   >
                     <Image
                       src="/google.svg"
