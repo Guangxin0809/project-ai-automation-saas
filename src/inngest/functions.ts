@@ -1,7 +1,7 @@
 import { NonRetriableError } from "inngest";
 
 import prisma from "@/lib/prisma";
-import { NodeType } from "@/generated/prisma/enums";
+import { ExecutionStatus, NodeType } from "@/generated/prisma/enums";
 import { getExecutor } from "@/features/executions/lib/executor-registry";
 
 import { inngest } from "./client";
@@ -20,6 +20,18 @@ export const executeWorkflow = inngest.createFunction(
   {
     id: "execute-workflow",
     retries: 0, // TODO: remove in production
+    onFailure: async ({ event, step }) => {
+      await prisma.execution.update({
+        where: {
+          inngestEventId: event.data.event.id,
+        },
+        data: {
+          status: ExecutionStatus.FAILED,
+          error: event.data.error.message,
+          errorStack: event.data.error.stack,
+        },
+      });
+    },
   },
   {
     event: "workflows/execute.workflow",
@@ -36,11 +48,25 @@ export const executeWorkflow = inngest.createFunction(
     ],
   },
   async ({ event, step, publish }) => {
+
+    const inngestEventId = event.id;
     const workflowId = event.data.workflowId;
 
+    if (!inngestEventId) {
+      throw new NonRetriableError("Inngest Event ID is missing");
+    }
     if (!workflowId) {
       throw new NonRetriableError("Workflow ID is missing");
     }
+
+    await step.run("create-execution", async () => {
+      return prisma.execution.create({
+        data: {
+          inngestEventId,
+          workflowId,
+        },
+      });
+    });
 
     const sortedNodes = await step.run("prepare-workflow", async () => {
       const workflow = await prisma.workflow.findUniqueOrThrow({
@@ -77,6 +103,17 @@ export const executeWorkflow = inngest.createFunction(
         publish,
       });
     }
+
+    await step.run("update-execution", async () => {
+      return prisma.execution.update({
+        where: { inngestEventId, workflowId },
+        data: {
+          status: ExecutionStatus.SUCCESS,
+          completedAt: new Date(),
+          output: context,
+        },
+      });
+    });
 
     return {
       workflowId,

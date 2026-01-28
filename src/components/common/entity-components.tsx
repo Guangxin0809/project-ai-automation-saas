@@ -60,7 +60,7 @@ export const EntityContainer = ({
 
 type EntityHeaderProps = {
   title: string;
-  newButtonLabel: string;
+  newButtonLabel?: string;
   description?: string;
   disabled?: boolean;
   isCreating?: boolean;
