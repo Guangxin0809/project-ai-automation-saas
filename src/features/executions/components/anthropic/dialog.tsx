@@ -138,7 +138,7 @@ export const AnthropicDialog = ({
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Gemini Credential</FormLabel>
+                  <FormLabel>Anthropic Credential</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
