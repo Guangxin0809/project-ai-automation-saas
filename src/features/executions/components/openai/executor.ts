@@ -4,6 +4,7 @@ import { NonRetriableError } from "inngest";
 import { createOpenAI } from "@ai-sdk/openai";
 
 import prisma from "@/lib/prisma";
+import { decrypt } from "@/lib/encryption";
 import { openAiChannel } from "@/inngest/channels/openai";
 import { NodeExecutor } from "@/features/executions/types";
 
@@ -96,7 +97,7 @@ export const openAiExecutor: NodeExecutor<OpenAiData> = async ({
   }
 
   const openai = createOpenAI({
-    apiKey: credential.value,
+    apiKey: decrypt(credential.value),
   });
 
   try {

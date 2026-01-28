@@ -4,6 +4,7 @@ import { NonRetriableError } from "inngest";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 
 import prisma from "@/lib/prisma";
+import { decrypt } from "@/lib/encryption";
 import { geminiChannel } from "@/inngest/channels/gemini";
 import { NodeExecutor } from "@/features/executions/types";
 
@@ -96,7 +97,7 @@ export const geminiExecutor: NodeExecutor<GeminiData> = async ({
   }
 
   const google = createGoogleGenerativeAI({
-    apiKey: credential.value,
+    apiKey: decrypt(credential.value),
   });
 
   try {
